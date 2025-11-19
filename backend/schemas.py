@@ -2,7 +2,7 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
-from models import UserRole, TicketPriority, TicketStatus
+from models import UserRole, TicketPriority, TicketStatus, SLAPriority
 
 
 # User Schemas
@@ -191,3 +191,87 @@ class PaginatedResponse(BaseModel):
     success: bool = True
     data: List
     metadata: PaginationMeta
+
+
+# Template Schemas
+class TemplateBase(BaseModel):
+    """Base template schema."""
+    name: str = Field(..., max_length=100)
+    title: str = Field(..., max_length=200)
+    description: str
+    priority: TicketPriority = TicketPriority.MEDIUM
+    category_id: Optional[int] = None
+
+
+class TemplateCreate(TemplateBase):
+    """Schema for template creation."""
+    pass
+
+
+class TemplateUpdate(BaseModel):
+    """Schema for template updates."""
+    name: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[TicketPriority] = None
+    category_id: Optional[int] = None
+
+
+class TemplateResponse(TemplateBase):
+    """Schema for template response."""
+    id: int
+    created_by: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    category: Optional[CategoryResponse] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# SLA Policy Schemas
+class SLAPolicyBase(BaseModel):
+    """Base SLA policy schema."""
+    name: str = Field(..., max_length=100)
+    description: Optional[str] = None
+    priority: SLAPriority
+    response_time_hours: float = Field(..., gt=0)
+    resolution_time_hours: float = Field(..., gt=0)
+    is_active: bool = True
+
+
+class SLAPolicyCreate(SLAPolicyBase):
+    """Schema for SLA policy creation."""
+    pass
+
+
+class SLAPolicyUpdate(BaseModel):
+    """Schema for SLA policy updates."""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[SLAPriority] = None
+    response_time_hours: Optional[float] = Field(None, gt=0)
+    resolution_time_hours: Optional[float] = Field(None, gt=0)
+    is_active: Optional[bool] = None
+
+
+class SLAPolicyResponse(SLAPolicyBase):
+    """Schema for SLA policy response."""
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Search Schema
+class TicketSearchParams(BaseModel):
+    """Schema for advanced ticket search parameters."""
+    query: Optional[str] = None  # Full-text search
+    status: Optional[TicketStatus] = None
+    priority: Optional[TicketPriority] = None
+    category_id: Optional[int] = None
+    assigned_to: Optional[int] = None
+    created_by: Optional[int] = None
+    date_from: Optional[datetime] = None
+    date_to: Optional[datetime] = None
+    sla_breached: Optional[bool] = None

@@ -14,6 +14,13 @@ A modern, full-featured IT helpdesk system built for on-premise deployment. Mana
 - **Category Management**: Organize tickets by category
 - **Dashboard**: Real-time overview of ticket statistics
 
+### Phase 2 Features (NEW!)
+- **Email Notifications**: Automated emails for ticket creation, assignment, status changes, and comments
+- **File Attachments**: Upload and download files to/from tickets (with file type and size validation)
+- **Advanced Search**: Full-text search across tickets with multiple filters
+- **Ticket Templates**: Pre-defined ticket templates for common issues
+- **SLA Tracking**: Automatic SLA policy application with response and resolution time tracking
+
 ### User Roles
 
 **Admin**
@@ -294,12 +301,12 @@ npm test
 - [x] Comment system
 - [x] Category management
 
-### Phase 2: Enhancement (Planned)
-- [ ] Email notifications
-- [ ] File attachments
-- [ ] Advanced search
-- [ ] Ticket templates
-- [ ] SLA tracking
+### Phase 2: Enhancement (Complete)
+- [x] Email notifications
+- [x] File attachments
+- [x] Advanced search
+- [x] Ticket templates
+- [x] SLA tracking
 
 ### Phase 3: Advanced (Future)
 - [ ] Knowledge base

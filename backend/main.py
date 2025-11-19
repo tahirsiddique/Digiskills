@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session
 
 from config import settings
 from database import engine, init_db, SessionLocal
-from models import User, Category, UserRole
+from models import User, Category, UserRole, SLAPolicy, SLAPriority
 from auth import get_password_hash
-from routers import auth, users, tickets, categories, comments
+from routers import auth, users, tickets, categories, comments, templates, sla, attachments
 
 
 @asynccontextmanager
@@ -56,6 +56,47 @@ async def lifespan(app: FastAPI):
             db.commit()
             print("✅ Default categories created")
 
+        # Create default SLA policies
+        if db.query(SLAPolicy).count() == 0:
+            print("⏱️  Creating default SLA policies...")
+            default_sla_policies = [
+                SLAPolicy(
+                    name="Low Priority SLA",
+                    description="SLA for low priority tickets",
+                    priority=SLAPriority.LOW,
+                    response_time_hours=24.0,
+                    resolution_time_hours=120.0,
+                    is_active=True
+                ),
+                SLAPolicy(
+                    name="Medium Priority SLA",
+                    description="SLA for medium priority tickets",
+                    priority=SLAPriority.MEDIUM,
+                    response_time_hours=8.0,
+                    resolution_time_hours=48.0,
+                    is_active=True
+                ),
+                SLAPolicy(
+                    name="High Priority SLA",
+                    description="SLA for high priority tickets",
+                    priority=SLAPriority.HIGH,
+                    response_time_hours=4.0,
+                    resolution_time_hours=24.0,
+                    is_active=True
+                ),
+                SLAPolicy(
+                    name="Critical Priority SLA",
+                    description="SLA for critical priority tickets",
+                    priority=SLAPriority.CRITICAL,
+                    response_time_hours=1.0,
+                    resolution_time_hours=8.0,
+                    is_active=True
+                ),
+            ]
+            db.add_all(default_sla_policies)
+            db.commit()
+            print("✅ Default SLA policies created")
+
         # Create upload directory
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
@@ -97,6 +138,9 @@ app.include_router(users.router)
 app.include_router(tickets.router)
 app.include_router(categories.router)
 app.include_router(comments.router)
+app.include_router(templates.router)
+app.include_router(sla.router)
+app.include_router(attachments.router)
 
 
 @app.get("/")

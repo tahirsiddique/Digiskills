@@ -1,5 +1,5 @@
 """SQLAlchemy database models."""
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Enum, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -28,6 +28,14 @@ class TicketStatus(str, enum.Enum):
     IN_PROGRESS = "in_progress"
     RESOLVED = "resolved"
     CLOSED = "closed"
+
+
+class SLAPriority(str, enum.Enum):
+    """SLA priority levels."""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
 
 
 class User(Base):
@@ -67,6 +75,43 @@ class Category(Base):
     parent = relationship("Category", remote_side=[id], backref="subcategories")
 
 
+class TicketTemplate(Base):
+    """Ticket template model."""
+    __tablename__ = "ticket_templates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    priority = Column(Enum(TicketPriority), default=TicketPriority.MEDIUM)
+    category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    category = relationship("Category")
+    creator = relationship("User")
+
+
+class SLAPolicy(Base):
+    """SLA policy model."""
+    __tablename__ = "sla_policies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text)
+    priority = Column(Enum(SLAPriority), nullable=False)
+    response_time_hours = Column(Float, nullable=False)  # Hours to first response
+    resolution_time_hours = Column(Float, nullable=False)  # Hours to resolution
+    is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    tickets = relationship("Ticket", back_populates="sla_policy")
+
+
 class Ticket(Base):
     """Ticket model."""
     __tablename__ = "tickets"
@@ -81,11 +126,19 @@ class Ticket(Base):
     category_id = Column(Integer, ForeignKey("categories.id"), nullable=True)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     assigned_to = Column(Integer, ForeignKey("users.id"), nullable=True)
+    sla_policy_id = Column(Integer, ForeignKey("sla_policies.id"), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     resolved_at = Column(DateTime(timezone=True), nullable=True)
     closed_at = Column(DateTime(timezone=True), nullable=True)
+    first_response_at = Column(DateTime(timezone=True), nullable=True)
+
+    # SLA tracking
+    sla_response_due = Column(DateTime(timezone=True), nullable=True)
+    sla_resolution_due = Column(DateTime(timezone=True), nullable=True)
+    sla_response_breached = Column(Boolean, default=False)
+    sla_resolution_breached = Column(Boolean, default=False)
 
     # Relationships
     category = relationship("Category", back_populates="tickets")
@@ -93,6 +146,7 @@ class Ticket(Base):
     assignee = relationship("User", foreign_keys=[assigned_to], back_populates="assigned_tickets")
     comments = relationship("TicketComment", back_populates="ticket", cascade="all, delete-orphan")
     attachments = relationship("TicketAttachment", back_populates="ticket", cascade="all, delete-orphan")
+    sla_policy = relationship("SLAPolicy", back_populates="tickets")
 
 
 class TicketComment(Base):

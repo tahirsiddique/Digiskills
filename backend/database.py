@@ -28,5 +28,5 @@ def get_db():
 
 def init_db():
     """Initialize database tables."""
-    from models import User, Category, Ticket, TicketComment, TicketAttachment
+    from models import User, Category, Ticket, TicketComment, TicketAttachment, TicketTemplate, SLAPolicy
     Base.metadata.create_all(bind=engine)
