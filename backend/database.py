@@ -28,5 +28,10 @@ def get_db():
 
 def init_db():
     """Initialize database tables."""
-    from models import User, Category, Ticket, TicketComment, TicketAttachment, TicketTemplate, SLAPolicy
+    from models import (
+        User, Category, Ticket, TicketComment, TicketAttachment,
+        TicketTemplate, SLAPolicy,
+        KnowledgeBaseCategory, KnowledgeBaseArticle,
+        Webhook, WebhookLog
+    )
     Base.metadata.create_all(bind=engine)

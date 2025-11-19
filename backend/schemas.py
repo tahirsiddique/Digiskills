@@ -275,3 +275,138 @@ class TicketSearchParams(BaseModel):
     date_from: Optional[datetime] = None
     date_to: Optional[datetime] = None
     sla_breached: Optional[bool] = None
+
+
+# Phase 3: Knowledge Base Schemas
+class KBCategoryBase(BaseModel):
+    """Base KB category schema."""
+    name: str = Field(..., max_length=100)
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    display_order: int = 0
+    is_active: bool = True
+
+
+class KBCategoryCreate(KBCategoryBase):
+    """Schema for KB category creation."""
+    pass
+
+
+class KBCategoryResponse(KBCategoryBase):
+    """Schema for KB category response."""
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class KBArticleBase(BaseModel):
+    """Base KB article schema."""
+    title: str = Field(..., max_length=200)
+    content: str
+    summary: Optional[str] = Field(None, max_length=500)
+    category_id: int
+    is_published: bool = False
+    is_featured: bool = False
+    tags: Optional[str] = None
+    related_articles: Optional[str] = None
+
+
+class KBArticleCreate(KBArticleBase):
+    """Schema for KB article creation."""
+    pass
+
+
+class KBArticleUpdate(BaseModel):
+    """Schema for KB article updates."""
+    title: Optional[str] = None
+    content: Optional[str] = None
+    summary: Optional[str] = None
+    category_id: Optional[int] = None
+    is_published: Optional[bool] = None
+    is_featured: Optional[bool] = None
+    tags: Optional[str] = None
+    related_articles: Optional[str] = None
+
+
+class KBArticleResponse(KBArticleBase):
+    """Schema for KB article response."""
+    id: int
+    slug: str
+    author_id: int
+    view_count: int
+    helpful_count: int
+    not_helpful_count: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    published_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Webhook Schemas
+class WebhookBase(BaseModel):
+    """Base webhook schema."""
+    name: str = Field(..., max_length=100)
+    url: str = Field(..., max_length=500)
+    secret: Optional[str] = None
+    events: str  # Comma-separated event types
+    is_active: bool = True
+
+
+class WebhookCreate(WebhookBase):
+    """Schema for webhook creation."""
+    pass
+
+
+class WebhookUpdate(BaseModel):
+    """Schema for webhook updates."""
+    name: Optional[str] = None
+    url: Optional[str] = None
+    secret: Optional[str] = None
+    events: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class WebhookResponse(WebhookBase):
+    """Schema for webhook response."""
+    id: int
+    created_by: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    last_triggered_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class WebhookLogResponse(BaseModel):
+    """Schema for webhook log response."""
+    id: int
+    webhook_id: int
+    event_type: str
+    payload: str
+    response_status: Optional[int] = None
+    response_body: Optional[str] = None
+    error_message: Optional[str] = None
+    triggered_at: datetime
+    delivered_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# AI Analysis Schemas
+class AIAnalysisRequest(BaseModel):
+    """Schema for AI analysis request."""
+    title: str
+    description: str
+
+
+class AIAnalysisResponse(BaseModel):
+    """Schema for AI analysis response."""
+    suggested_category_id: Optional[int] = None
+    suggested_category_name: Optional[str] = None
+    suggested_priority: str
+    urgency_score: float
+    suggested_tags: List[str]
+    confidence: float

@@ -181,3 +181,102 @@ class TicketAttachment(Base):
     # Relationships
     ticket = relationship("Ticket", back_populates="attachments")
     uploader = relationship("User", back_populates="attachments")
+
+
+# Phase 3: Knowledge Base Models
+
+class KnowledgeBaseCategory(Base):
+    """Knowledge base category model."""
+    __tablename__ = "kb_categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text)
+    icon = Column(String(50))
+    display_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    articles = relationship("KnowledgeBaseArticle", back_populates="category")
+
+
+class KnowledgeBaseArticle(Base):
+    """Knowledge base article model."""
+    __tablename__ = "kb_articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False, index=True)
+    slug = Column(String(250), unique=True, nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    summary = Column(String(500))
+    category_id = Column(Integer, ForeignKey("kb_categories.id"), nullable=False)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    is_published = Column(Boolean, default=False)
+    is_featured = Column(Boolean, default=False)
+    view_count = Column(Integer, default=0)
+    helpful_count = Column(Integer, default=0)
+    not_helpful_count = Column(Integer, default=0)
+
+    tags = Column(String(500))  # Comma-separated tags
+    related_articles = Column(String(500))  # Comma-separated article IDs
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    published_at = Column(DateTime(timezone=True))
+
+    # Relationships
+    category = relationship("KnowledgeBaseCategory", back_populates="articles")
+    author = relationship("User")
+
+
+# Phase 3: Integration Models
+
+class WebhookEventType(str, enum.Enum):
+    """Webhook event types."""
+    TICKET_CREATED = "ticket.created"
+    TICKET_UPDATED = "ticket.updated"
+    TICKET_ASSIGNED = "ticket.assigned"
+    TICKET_RESOLVED = "ticket.resolved"
+    TICKET_CLOSED = "ticket.closed"
+    COMMENT_ADDED = "comment.added"
+
+
+class Webhook(Base):
+    """Webhook configuration model."""
+    __tablename__ = "webhooks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    url = Column(String(500), nullable=False)
+    secret = Column(String(255))  # Secret for signature verification
+    events = Column(String(500), nullable=False)  # Comma-separated event types
+    is_active = Column(Boolean, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    last_triggered_at = Column(DateTime(timezone=True))
+
+    # Relationships
+    creator = relationship("User")
+    logs = relationship("WebhookLog", back_populates="webhook", cascade="all, delete-orphan")
+
+
+class WebhookLog(Base):
+    """Webhook delivery log model."""
+    __tablename__ = "webhook_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    webhook_id = Column(Integer, ForeignKey("webhooks.id"), nullable=False)
+    event_type = Column(String(50), nullable=False)
+    payload = Column(Text, nullable=False)  # JSON payload
+    response_status = Column(Integer)
+    response_body = Column(Text)
+    error_message = Column(Text)
+    triggered_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    delivered_at = Column(DateTime(timezone=True))
+
+    # Relationships
+    webhook = relationship("Webhook", back_populates="logs")

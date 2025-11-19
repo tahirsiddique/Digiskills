@@ -14,12 +14,19 @@ A modern, full-featured IT helpdesk system built for on-premise deployment. Mana
 - **Category Management**: Organize tickets by category
 - **Dashboard**: Real-time overview of ticket statistics
 
-### Phase 2 Features (NEW!)
+### Phase 2 Features
 - **Email Notifications**: Automated emails for ticket creation, assignment, status changes, and comments
 - **File Attachments**: Upload and download files to/from tickets (with file type and size validation)
 - **Advanced Search**: Full-text search across tickets with multiple filters
 - **Ticket Templates**: Pre-defined ticket templates for common issues
 - **SLA Tracking**: Automatic SLA policy application with response and resolution time tracking
+
+### Phase 3 Features (NEW!)
+- **Knowledge Base**: Self-service article system with categories, search, and analytics
+- **Reporting & Analytics**: Comprehensive dashboards with ticket trends, SLA metrics, and technician performance
+- **Webhooks**: External system integrations with HMAC signature verification and delivery logs
+- **AI-Powered Categorization**: Smart ticket categorization and priority suggestions using ML algorithms
+- **Integration APIs**: RESTful APIs for third-party integrations and custom workflows
 
 ### User Roles
 
@@ -308,12 +315,12 @@ npm test
 - [x] Ticket templates
 - [x] SLA tracking
 
-### Phase 3: Advanced (Future)
-- [ ] Knowledge base
-- [ ] Reporting and analytics
-- [ ] Mobile application
-- [ ] Integration APIs
-- [ ] AI-powered categorization
+### Phase 3: Advanced (Complete)
+- [x] Knowledge base
+- [x] Reporting and analytics
+- [x] Integration APIs (Webhooks)
+- [x] AI-powered categorization
+- [ ] Mobile application (Future)
 
 ## License
 

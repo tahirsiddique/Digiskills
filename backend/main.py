@@ -7,9 +7,12 @@ from sqlalchemy.orm import Session
 
 from config import settings
 from database import engine, init_db, SessionLocal
-from models import User, Category, UserRole, SLAPolicy, SLAPriority
+from models import User, Category, UserRole, SLAPolicy, SLAPriority, KnowledgeBaseCategory
 from auth import get_password_hash
-from routers import auth, users, tickets, categories, comments, templates, sla, attachments
+from routers import (
+    auth, users, tickets, categories, comments,
+    templates, sla, attachments, knowledge_base, webhooks, analytics, ai
+)
 
 
 @asynccontextmanager
@@ -97,6 +100,39 @@ async def lifespan(app: FastAPI):
             db.commit()
             print("✅ Default SLA policies created")
 
+        # Create default knowledge base categories
+        if db.query(KnowledgeBaseCategory).count() == 0:
+            print("📚 Creating default KB categories...")
+            default_kb_categories = [
+                KnowledgeBaseCategory(
+                    name="Getting Started",
+                    description="Basic guides and tutorials",
+                    icon="rocket",
+                    display_order=1
+                ),
+                KnowledgeBaseCategory(
+                    name="Common Issues",
+                    description="Frequently encountered problems and solutions",
+                    icon="alert-circle",
+                    display_order=2
+                ),
+                KnowledgeBaseCategory(
+                    name="How-To Guides",
+                    description="Step-by-step instructions",
+                    icon="book-open",
+                    display_order=3
+                ),
+                KnowledgeBaseCategory(
+                    name="FAQs",
+                    description="Frequently asked questions",
+                    icon="help-circle",
+                    display_order=4
+                ),
+            ]
+            db.add_all(default_kb_categories)
+            db.commit()
+            print("✅ Default KB categories created")
+
         # Create upload directory
         os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 
@@ -141,6 +177,11 @@ app.include_router(comments.router)
 app.include_router(templates.router)
 app.include_router(sla.router)
 app.include_router(attachments.router)
+# Phase 3 routers
+app.include_router(knowledge_base.router)
+app.include_router(webhooks.router)
+app.include_router(analytics.router)
+app.include_router(ai.router)
 
 
 @app.get("/")
