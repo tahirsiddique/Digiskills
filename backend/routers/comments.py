@@ -1,5 +1,6 @@
 """Comment management API routes."""
 from typing import List
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,7 @@ from database import get_db
 from models import User, Ticket, TicketComment, UserRole
 from schemas import CommentCreate, CommentResponse
 from auth import get_current_user
+from email_service import email_service
 
 router = APIRouter(prefix="/api/comments", tags=["Comments"])
 
@@ -47,9 +49,43 @@ async def create_comment(
         is_internal=comment_data.is_internal
     )
 
+    # Mark first response time for SLA tracking
+    if not ticket.first_response_at:
+        ticket.first_response_at = datetime.utcnow()
+
     db.add(comment)
     db.commit()
     db.refresh(comment)
+
+    # Send email notification to ticket creator and assignee (if not internal comment)
+    if not comment_data.is_internal:
+        # Notify creator if they didn't write the comment
+        if ticket.created_by != current_user.id:
+            creator = db.query(User).filter(User.id == ticket.created_by).first()
+            if creator:
+                await email_service.send_new_comment_notification(
+                    ticket_number=ticket.ticket_number,
+                    ticket_id=ticket.id,
+                    title=ticket.title,
+                    commenter_name=current_user.first_name or current_user.username,
+                    comment_text=comment_data.comment_text,
+                    recipient_email=creator.email,
+                    recipient_name=creator.first_name or creator.username
+                )
+
+        # Notify assignee if they didn't write the comment and are not the creator
+        if ticket.assigned_to and ticket.assigned_to != current_user.id and ticket.assigned_to != ticket.created_by:
+            assignee = db.query(User).filter(User.id == ticket.assigned_to).first()
+            if assignee:
+                await email_service.send_new_comment_notification(
+                    ticket_number=ticket.ticket_number,
+                    ticket_id=ticket.id,
+                    title=ticket.title,
+                    commenter_name=current_user.first_name or current_user.username,
+                    comment_text=comment_data.comment_text,
+                    recipient_email=assignee.email,
+                    recipient_name=assignee.first_name or assignee.username
+                )
 
     return comment
 
