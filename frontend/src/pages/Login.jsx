@@ -29,7 +29,9 @@ const Login = () => {
     <div style={styles.container}>
       <div style={styles.card} className="card">
         <div style={styles.header}>
-          <Ticket size={48} color="#2563eb" />
+          <div style={styles.iconWrapper}>
+            <Ticket size={48} color="white" strokeWidth={2.5} />
+          </div>
           <h1 style={styles.title}>Digiskills Helpdesk</h1>
           <p style={styles.subtitle}>Sign in to your account</p>
         </div>
@@ -98,43 +100,64 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
   },
   card: {
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '440px',
+    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
   },
   header: {
     textAlign: 'center',
-    marginBottom: '32px',
+    marginBottom: '40px',
+  },
+  iconWrapper: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 20px',
+    boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
   },
   title: {
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#1e293b',
+    fontSize: '28px',
+    fontWeight: '800',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     marginTop: '16px',
   },
   subtitle: {
     color: '#64748b',
     marginTop: '8px',
+    fontSize: '15px',
   },
   submitBtn: {
     width: '100%',
     justifyContent: 'center',
+    padding: '14px',
+    fontSize: '15px',
   },
   footer: {
-    marginTop: '24px',
+    marginTop: '28px',
     textAlign: 'center',
     color: '#64748b',
     fontSize: '14px',
   },
   link: {
-    color: '#2563eb',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     textDecoration: 'none',
-    fontWeight: '500',
+    fontWeight: '700',
   },
   hint: {
-    marginTop: '16px',
+    marginTop: '20px',
     fontSize: '12px',
   },
 };

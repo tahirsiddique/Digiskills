@@ -61,25 +61,25 @@ const Dashboard = () => {
           title="Total Tickets"
           value={stats.total}
           icon={<Ticket />}
-          color="#2563eb"
+          gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
         />
         <StatCard
           title="New"
           value={stats.new}
           icon={<Clock />}
-          color="#8b5cf6"
+          gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
         />
         <StatCard
           title="In Progress"
           value={stats.inProgress}
           icon={<TrendingUp />}
-          color="#f59e0b"
+          gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
         />
         <StatCard
           title="Resolved"
           value={stats.resolved}
           icon={<CheckCircle />}
-          color="#10b981"
+          gradient="linear-gradient(135deg, #30cfd0 0%, #38ef7d 100%)"
         />
       </div>
 
@@ -130,12 +130,12 @@ const Dashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, icon, color }) => (
-  <div className="card" style={styles.statCard}>
-    <div style={{ ...styles.iconWrapper, backgroundColor: `${color}20` }}>
-      {React.cloneElement(icon, { size: 24, color })}
+const StatCard = ({ title, value, icon, gradient }) => (
+  <div style={{ ...styles.statCard, background: gradient }}>
+    <div style={styles.iconWrapper}>
+      {React.cloneElement(icon, { size: 32, color: 'white', strokeWidth: 2.5 })}
     </div>
-    <div>
+    <div style={styles.statContent}>
       <div style={styles.statValue}>{value}</div>
       <div style={styles.statTitle}>{title}</div>
     </div>
@@ -147,36 +147,52 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '32px',
+    marginBottom: '40px',
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '20px',
-    marginBottom: '32px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '24px',
+    marginBottom: '40px',
   },
   statCard: {
+    padding: '32px',
+    borderRadius: '20px',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: '16px',
+    textAlign: 'center',
+    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    border: 'none',
   },
   iconWrapper: {
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    marginBottom: '20px',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+  },
+  statContent: {
+    color: 'white',
   },
   statValue: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#1e293b',
+    fontSize: '42px',
+    fontWeight: '800',
+    color: 'white',
+    marginBottom: '8px',
   },
   statTitle: {
-    fontSize: '14px',
-    color: '#64748b',
-    marginTop: '4px',
+    fontSize: '15px',
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontWeight: '600',
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
   },
   cardHeader: {
     display: 'flex',
@@ -184,10 +200,14 @@ const styles = {
     alignItems: 'center',
   },
   viewAll: {
-    color: '#2563eb',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     textDecoration: 'none',
     fontSize: '14px',
-    fontWeight: '500',
+    fontWeight: '700',
+    transition: 'all 0.3s',
   },
   empty: {
     textAlign: 'center',
